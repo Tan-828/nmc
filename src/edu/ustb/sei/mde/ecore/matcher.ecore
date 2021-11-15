@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="matcher" nsURI="http:///matcher" nsPrefix="matcher">
+  <eClassifiers xsi:type="ecore:EClass" name="DefaultMatchEngine">
+    <eOperations name="match" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="icomparisonfactory" lowerBound="1"
+        eType="#//IComparisonFactory" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ieobjectmatcher" lowerBound="1"
+        eType="#//IEObjectMatcher" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IComparisonFactory" abstract="true"
+      interface="true">
+    <eOperations name="createComparison" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IEObjectMatcher" abstract="true" interface="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ProximityEObjectMatcher" eSuperTypes="#//IEObjectMatcher">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="eobjectindex" lowerBound="1"
+        eType="#//EObjectIndex" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DifferenceKind"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="DifferenceSource"/>
+  <eClassifiers xsi:type="ecore:EClass" name="IdentifierEObjectMatcher" eSuperTypes="#//IEObjectMatcher"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DefaultComparisonFactory" eSuperTypes="#//IComparisonFactory">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="iequalityhelperfactory"
+        lowerBound="1" eType="#//IEqualityHelperFactory" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="call" lowerBound="1" eType="#//ComapreFactory"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IEqualityHelperFactory" abstract="true"
+      interface="true">
+    <eOperations name="createEqualityHelper" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DefaultEqualityHelperFactory" eSuperTypes="#//IEqualityHelperFactory">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="call" lowerBound="1" eType="#//EqualityHelper"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EObjectIndex" abstract="true" interface="true">
+    <eOperations name="findClosests" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ByIndex" eSuperTypes="#//EObjectIndex">
+    <eOperations name="getOrCreate" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="distancefunction" lowerBound="1"
+        eType="#//DistanceFunction" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProximityIndex" eSuperTypes="#//EObjectIndex">
+    <eOperations name="findTheClosest" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="distancefunction" lowerBound="1"
+        eType="#//DistanceFunction" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DistanceFunction" abstract="true" interface="true">
+    <eOperations name="distance" lowerBound="1"/>
+    <eOperations name="areIdentic" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CachingDistance" eSuperTypes="#//DistanceFunction"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EditionDistance" eSuperTypes="#//DistanceFunction">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="countingdiffengine" lowerBound="1"
+        eType="#//CountingDiffEngine"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="countingdiffprocessor"
+        lowerBound="1" eType="#//CountingDiffProcessor"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fakeComparison" lowerBound="1"
+        eType="#//Comparison" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Comparison" abstract="true" interface="true">
+    <eOperations name="getMatchedResources" lowerBound="1"/>
+    <eOperations name="getMatches"/>
+    <eOperations name="getMatch" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ComparisonImpl" eSuperTypes="#//Comparison">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="match" upperBound="-1"
+        eType="#//Match" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="matchresource" upperBound="-1"
+        eType="#//MatchResource" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Match" abstract="true" interface="true">
+    <eOperations name="getSubmatches" lowerBound="1"/>
+    <eOperations name="getLeft" lowerBound="1"/>
+    <eOperations name="getRight" lowerBound="1"/>
+    <eOperations name="getOrigin" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MatchResource"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ComparisonSpec" eSuperTypes="#//ComparisonImpl">
+    <eOperations name="getMatch" lowerBound="1"/>
+    <eOperations name="getEqualityHelper" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="matchcrossreferencer" upperBound="-1"
+        eType="#//MatchCrossReferencer" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="call" lowerBound="1" eType="#//EqualityHelper"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MatchCrossReferencer"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EqualityHelper" eSuperTypes="#//IEqualityHelper">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="comparison" lowerBound="1"
+        eType="#//Comparison" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="matchspec" lowerBound="1"
+        eType="#//MatchSpec" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DefaultDiffEngine">
+    <eOperations name="checkForDifferences" lowerBound="1"/>
+    <eOperations name="internalCheckForDifferences" lowerBound="1"/>
+    <eOperations name="computeDifferences" lowerBound="1"/>
+    <eOperations name="getDiffProcessor" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="idiffprocessor" lowerBound="1"
+        eType="#//IDiffProcessor" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CountingDiffEngine" eSuperTypes="#//DefaultDiffEngine">
+    <eOperations name="measureDifferences" lowerBound="1"/>
+    <eOperations name="haveSameContainer" lowerBound="1"/>
+    <eOperations name="createFeatureFilter" lowerBound="1"/>
+    <eOperations name="getCounter" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="comparison" lowerBound="1"
+        eType="#//Comparison" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IDiffProcessor" abstract="true" interface="true">
+    <eOperations name="referenceChange" lowerBound="1"/>
+    <eOperations name="attributeChange" lowerBound="1"/>
+    <eOperations name="featureMapChange" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CountingDiffProcessor" eSuperTypes="#//IDiffProcessor">
+    <eOperations name="getComputedDistance" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IEqualityHelper" abstract="true" interface="true">
+    <eOperations name="matchingValues" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MatchImpl" eSuperTypes="#//Match"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MatchSpec" eSuperTypes="#//MatchImpl"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ComapreFactory" abstract="true" interface="true">
+    <eOperations name="createComparison" lowerBound="1"/>
+    <eOperations name="createMatchResource" lowerBound="1"/>
+    <eOperations name="createMatch" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CompareFactoryImpl" eSuperTypes="#//ComapreFactory">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="call" lowerBound="1" eType="#//ComparePackage"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="call2" lowerBound="1" eType="#//ComparisonSpec"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ComparePackage"/>
+  <eClassifiers xsi:type="ecore:EClass" name="HashEObjectMatcher" eSuperTypes="#//IEObjectMatcher">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="hashbasedindex" upperBound="-1"
+        eType="#//HashBasedIndex" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HashBasedIndex"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ComparePackageImpl" eSuperTypes="#//ComparePackage">
+    <eOperations name="init" lowerBound="1"/>
+  </eClassifiers>
+</ecore:EPackage>
