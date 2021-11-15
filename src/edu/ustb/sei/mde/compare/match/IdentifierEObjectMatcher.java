@@ -31,6 +31,7 @@ import edu.ustb.sei.mde.compare.IEObjectMatcher;
 import edu.ustb.sei.mde.compare.Match;
 import edu.ustb.sei.mde.compare.EObjectIndex.Side;
 import edu.ustb.sei.mde.compare.util.EMFCompareMessages;
+import edu.ustb.sei.mde.compare.match.MatchComputationByID;
 
 /**
  * This implementation of an {@link IEObjectMatcher} will create {@link Match}es based on the input EObjects
@@ -185,8 +186,8 @@ public class IdentifierEObjectMatcher implements IEObjectMatcher {
 			final List<EObject> leftEObjectsNoID, final List<EObject> rightEObjectsNoID,
 			final List<EObject> originEObjectsNoID) {
 
-		MatchComputation computation = new MatchComputation(leftEObjects, rightEObjects, originEObjects,
-				leftEObjectsNoID, rightEObjectsNoID, originEObjectsNoID);
+		MatchComputationByID computation = new MatchComputationByID(leftEObjects, rightEObjects, originEObjects,
+				leftEObjectsNoID, rightEObjectsNoID, originEObjectsNoID, idComputation, diagnostic);
 		computation.compute();
 		return computation.getMatches();
 	}
@@ -201,15 +202,15 @@ public class IdentifierEObjectMatcher implements IEObjectMatcher {
 	 * @return The parent of the given {@code eObject}.
 	 * @since 3.2
 	 */
-	protected EObject getParentEObject(EObject eObject) {
-		final EObject parent;
-		if (eObject != null) {
-			parent = eObject.eContainer();
-		} else {
-			parent = null;
-		}
-		return parent;
-	}
+//	public EObject getParentEObject(EObject eObject) {
+//		final EObject parent;
+//		if (eObject != null) {
+//			parent = eObject.eContainer();
+//		} else {
+//			parent = null;
+//		}
+//		return parent;
+//	}
 
 	/**
 	 * Adds a warning diagnostic to the comparison for the duplicate ID.
@@ -219,45 +220,45 @@ public class IdentifierEObjectMatcher implements IEObjectMatcher {
 	 * @param eObject
 	 *            the element with the duplicate ID
 	 */
-	private void reportDuplicateID(Side side, EObject eObject) {
-		final String duplicateID = idComputation.apply(eObject);
-		final String sideName = side.name().toLowerCase();
-		final String uriString = getUriString(eObject);
-		final String message;
-		if (uriString != null) {
-			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateIdWithResource", //$NON-NLS-1$
-					duplicateID, sideName, uriString);
-		} else {
-			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateId", //$NON-NLS-1$
-					duplicateID, sideName);
-		}
-		diagnostic.add(new BasicDiagnostic(Diagnostic.WARNING, DIAGNOSTIC_SOURCE, 0, message, null));
-	}
+//	public void reportDuplicateID(Side side, EObject eObject) {
+//		final String duplicateID = idComputation.apply(eObject);
+//		final String sideName = side.name().toLowerCase();
+//		final String uriString = getUriString(eObject);
+//		final String message;
+//		if (uriString != null) {
+//			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateIdWithResource", //$NON-NLS-1$
+//					duplicateID, sideName, uriString);
+//		} else {
+//			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateId", //$NON-NLS-1$
+//					duplicateID, sideName);
+//		}
+//		diagnostic.add(new BasicDiagnostic(Diagnostic.WARNING, DIAGNOSTIC_SOURCE, 0, message, null));
+//	}
 
-	/**
-	 * Returns a String representation of the URI of the given {@code eObject}'s resource.
-	 * <p>
-	 * If the {@code eObject}'s resource or its URI is <code>null</code>, this method returns
-	 * <code>null</code>.
-	 * </p>
-	 * 
-	 * @param eObject
-	 *            The {@link EObject} for which's resource the string representation of its URI is determined.
-	 * @return A String representation of the given {@code eObject}'s resource URI.
-	 */
-	private String getUriString(EObject eObject) {
-		String uriString = null;
-		final Resource resource = eObject.eResource();
-		if (resource != null && resource.getURI() != null) {
-			final URI uri = resource.getURI();
-			if (uri.isPlatform()) {
-				uriString = uri.toPlatformString(true);
-			} else {
-				uriString = uri.toString();
-			}
-		}
-		return uriString;
-	}
+//	/**
+//	 * Returns a String representation of the URI of the given {@code eObject}'s resource.
+//	 * <p>
+//	 * If the {@code eObject}'s resource or its URI is <code>null</code>, this method returns
+//	 * <code>null</code>.
+//	 * </p>
+//	 * 
+//	 * @param eObject
+//	 *            The {@link EObject} for which's resource the string representation of its URI is determined.
+//	 * @return A String representation of the given {@code eObject}'s resource URI.
+//	 */
+//	private String getUriString(EObject eObject) {
+//		String uriString = null;
+//		final Resource resource = eObject.eResource();
+//		if (resource != null && resource.getURI() != null) {
+//			final URI uri = resource.getURI();
+//			if (uri.isPlatform()) {
+//				uriString = uri.toPlatformString(true);
+//			} else {
+//				uriString = uri.toString();
+//			}
+//		}
+//		return uriString;
+//	}
 
 	/**
 	 * The default function used to retrieve IDs from EObject. You might want to extend or compose with it if
@@ -295,6 +296,7 @@ public class IdentifierEObjectMatcher implements IEObjectMatcher {
 			return identifier;
 		}
 	}
+}
 
 //	/**
 //	 * Helper class to manage two different maps within one class based on a switch boolean.
@@ -363,238 +365,238 @@ public class IdentifierEObjectMatcher implements IEObjectMatcher {
 //			}
 //		}
 //	}
-
-	/**
-	 * Computes matches from eObjects. We'll only iterate once on each of the three sides, building the
-	 * matches as we go.
-	 * 
-	 * @author <a href="mailto:axel.richard@obeo.fr">Axel Richard</a>
-	 */
-	private class MatchComputation {
-
-		/** Matches created by the {@link #compute()} process. */
-		private final Set<Match> matches;
-
-		/**
-		 * We will try and mimic the structure of the input model. These maps do not need to be ordered, we
-		 * only need fast lookup. Map each match to its left eObject.
-		 */
-		private final Map<EObject, Match> leftEObjectsToMatch;
-
-		/** Map each match to its right eObject. */
-		private final Map<EObject, Match> rightEObjectsToMatch;
-
-		/** Map each match to its origin eObject. */
-		private final Map<EObject, Match> originEObjectsToMatch;
-
-		/** Left eObjects to match. */
-		private Iterator<? extends EObject> leftEObjects;
-
-		/** Right eObjects to match. */
-		private Iterator<? extends EObject> rightEObjects;
-
-		/** Origin eObjects to match. */
-		private Iterator<? extends EObject> originEObjects;
-
-		/** Remaining left objects after matching. */
-		private List<EObject> leftEObjectsNoID;
-
-		/** Remaining right objects after matching. */
-		private List<EObject> rightEObjectsNoID;
-
-		/** Remaining origin objects after matching. */
-		private List<EObject> originEObjectsNoID;
-
-		/**
-		 * This lookup map will be used by iterations on right and origin to find the match in which they
-		 * should add themselves.
-		 */
-		private SwitchMap<String, Match> idProxyMap;
-
-		/**
-		 * Constructor.
-		 * 
-		 * @param leftEObjects
-		 *            Left eObjects to match.
-		 * @param rightEObjects
-		 *            Right eObjects to match.
-		 * @param originEObjects
-		 *            Origin eObjects to match.
-		 * @param leftEObjectsNoID
-		 *            Remaining left objects after matching.
-		 * @param rightEObjectsNoID
-		 *            Remaining left objects after matching.
-		 * @param originEObjectsNoID
-		 *            Remaining left objects after matching.
-		 */
-		MatchComputation(Iterator<? extends EObject> leftEObjects, Iterator<? extends EObject> rightEObjects,
-				Iterator<? extends EObject> originEObjects, final List<EObject> leftEObjectsNoID,
-				final List<EObject> rightEObjectsNoID, final List<EObject> originEObjectsNoID) {
-			this.matches = Sets.newLinkedHashSet();
-			this.leftEObjectsToMatch = Maps.newHashMap();
-			this.rightEObjectsToMatch = Maps.newHashMap();
-			this.originEObjectsToMatch = Maps.newHashMap();
-			this.idProxyMap = new SwitchMap<String, Match>();
-			this.leftEObjects = leftEObjects;
-			this.rightEObjects = rightEObjects;
-			this.originEObjects = originEObjects;
-			this.leftEObjectsNoID = leftEObjectsNoID;
-			this.rightEObjectsNoID = rightEObjectsNoID;
-			this.originEObjectsNoID = originEObjectsNoID;
-		}
-
-		/**
-		 * Returns the matches created by this computation.
-		 * 
-		 * @return the matches created by this computation.
-		 */
-		public Set<Match> getMatches() {
-			return matches;
-		}
-
-		/**
-		 * Computes matches.
-		 */
-		public void compute() {
-			computeLeftSide();
-			computeRightSide();
-			computeOriginSide();
-			reorganizeMatches();
-		}
-
-		/**
-		 * Computes matches for left side.
-		 */
-		private void computeLeftSide() {
-			while (leftEObjects.hasNext()) {
-				final EObject left = leftEObjects.next();
-				final String identifier = idComputation.apply(left);
-				if (identifier != null) {
-					final Match match = CompareFactory.eINSTANCE.createMatch();
-					match.setLeft(left);
-					// Can we find a parent? Assume we're iterating in containment order
-					final EObject parentEObject = getParentEObject(left);
-					final Match parent = leftEObjectsToMatch.get(parentEObject);
-					if (parent != null) {
-						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-					} else {
-						matches.add(match);
-					}
-					final boolean isAlreadyContained = idProxyMap.put(left.eIsProxy(), identifier, match);
-					if (isAlreadyContained) {
-						reportDuplicateID(Side.LEFT, left);
-					}
-					leftEObjectsToMatch.put(left, match);
-				} else {
-					leftEObjectsNoID.add(left);
-				}
-			}
-		}
-
-		/**
-		 * Computes matches for right side.
-		 */
-		private void computeRightSide() {
-			while (rightEObjects.hasNext()) {
-				final EObject right = rightEObjects.next();
-				// Do we have an existing match?
-				final String identifier = idComputation.apply(right);
-				if (identifier != null) {
-					Match match = idProxyMap.get(right.eIsProxy(), identifier);
-					if (match != null) {
-						if (match.getRight() != null) {
-							reportDuplicateID(Side.RIGHT, right);
-						}
-						match.setRight(right);
-						rightEObjectsToMatch.put(right, match);
-					} else {
-						// Otherwise, create and place it.
-						match = CompareFactory.eINSTANCE.createMatch();
-						match.setRight(right);
-						// Can we find a parent?
-						final EObject parentEObject = getParentEObject(right);
-						final Match parent = rightEObjectsToMatch.get(parentEObject);
-						if (parent != null) {
-							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-						} else {
-							matches.add(match);
-						}
-						rightEObjectsToMatch.put(right, match);
-						idProxyMap.put(right.eIsProxy(), identifier, match);
-					}
-				} else {
-					rightEObjectsNoID.add(right);
-				}
-			}
-		}
-
-		/**
-		 * Computes matches for origin side.
-		 */
-		private void computeOriginSide() {
-			while (originEObjects.hasNext()) {
-				final EObject origin = originEObjects.next();
-				// Do we have an existing match?
-				final String identifier = idComputation.apply(origin);
-				if (identifier != null) {
-					Match match = idProxyMap.get(origin.eIsProxy(), identifier);
-					if (match != null) {
-						if (match.getOrigin() != null) {
-							reportDuplicateID(Side.ORIGIN, origin);
-						}
-						match.setOrigin(origin);
-						originEObjectsToMatch.put(origin, match);
-					} else {
-						// Otherwise, create and place it.
-						match = CompareFactory.eINSTANCE.createMatch();
-						match.setOrigin(origin);
-						// Can we find a parent?
-						final EObject parentEObject = getParentEObject(origin);
-						final Match parent = originEObjectsToMatch.get(parentEObject);
-						if (parent != null) {
-							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-						} else {
-							matches.add(match);
-						}
-						idProxyMap.put(origin.eIsProxy(), identifier, match);
-						originEObjectsToMatch.put(origin, match);
-					}
-				} else {
-					originEObjectsNoID.add(origin);
-				}
-			}
-		}
-
-		/**
-		 * Reorganize matches.
-		 */
-		private void reorganizeMatches() {
-			// For all root matches, check if they can be put under another match.
-			for (Match match : ImmutableSet.copyOf(matches)) {
-				EObject parentEObject = getParentEObject(match.getLeft());
-				Match parent = leftEObjectsToMatch.get(parentEObject);
-				if (parent != null) {
-					matches.remove(match);
-					((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-				} else {
-					parentEObject = getParentEObject(match.getRight());
-					parent = rightEObjectsToMatch.get(parentEObject);
-					if (parent != null) {
-						matches.remove(match);
-						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-					} else {
-						parentEObject = getParentEObject(match.getOrigin());
-						parent = originEObjectsToMatch.get(parentEObject);
-						if (parent != null) {
-							matches.remove(match);
-							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-						}
-					}
-				}
-			}
-		}
-	}
-}
+//
+//	/**
+//	 * Computes matches from eObjects. We'll only iterate once on each of the three sides, building the
+//	 * matches as we go.
+//	 * 
+//	 * @author <a href="mailto:axel.richard@obeo.fr">Axel Richard</a>
+//	 */
+//	private class MatchComputation {
+//
+//		/** Matches created by the {@link #compute()} process. */
+//		private final Set<Match> matches;
+//
+//		/**
+//		 * We will try and mimic the structure of the input model. These maps do not need to be ordered, we
+//		 * only need fast lookup. Map each match to its left eObject.
+//		 */
+//		private final Map<EObject, Match> leftEObjectsToMatch;
+//
+//		/** Map each match to its right eObject. */
+//		private final Map<EObject, Match> rightEObjectsToMatch;
+//
+//		/** Map each match to its origin eObject. */
+//		private final Map<EObject, Match> originEObjectsToMatch;
+//
+//		/** Left eObjects to match. */
+//		private Iterator<? extends EObject> leftEObjects;
+//
+//		/** Right eObjects to match. */
+//		private Iterator<? extends EObject> rightEObjects;
+//
+//		/** Origin eObjects to match. */
+//		private Iterator<? extends EObject> originEObjects;
+//
+//		/** Remaining left objects after matching. */
+//		private List<EObject> leftEObjectsNoID;
+//
+//		/** Remaining right objects after matching. */
+//		private List<EObject> rightEObjectsNoID;
+//
+//		/** Remaining origin objects after matching. */
+//		private List<EObject> originEObjectsNoID;
+//
+//		/**
+//		 * This lookup map will be used by iterations on right and origin to find the match in which they
+//		 * should add themselves.
+//		 */
+//		private SwitchMap<String, Match> idProxyMap;
+//
+//		/**
+//		 * Constructor.
+//		 * 
+//		 * @param leftEObjects
+//		 *            Left eObjects to match.
+//		 * @param rightEObjects
+//		 *            Right eObjects to match.
+//		 * @param originEObjects
+//		 *            Origin eObjects to match.
+//		 * @param leftEObjectsNoID
+//		 *            Remaining left objects after matching.
+//		 * @param rightEObjectsNoID
+//		 *            Remaining left objects after matching.
+//		 * @param originEObjectsNoID
+//		 *            Remaining left objects after matching.
+//		 */
+//		MatchComputation(Iterator<? extends EObject> leftEObjects, Iterator<? extends EObject> rightEObjects,
+//				Iterator<? extends EObject> originEObjects, final List<EObject> leftEObjectsNoID,
+//				final List<EObject> rightEObjectsNoID, final List<EObject> originEObjectsNoID) {
+//			this.matches = Sets.newLinkedHashSet();
+//			this.leftEObjectsToMatch = Maps.newHashMap();
+//			this.rightEObjectsToMatch = Maps.newHashMap();
+//			this.originEObjectsToMatch = Maps.newHashMap();
+//			this.idProxyMap = new SwitchMap<String, Match>();
+//			this.leftEObjects = leftEObjects;
+//			this.rightEObjects = rightEObjects;
+//			this.originEObjects = originEObjects;
+//			this.leftEObjectsNoID = leftEObjectsNoID;
+//			this.rightEObjectsNoID = rightEObjectsNoID;
+//			this.originEObjectsNoID = originEObjectsNoID;
+//		}
+//
+//		/**
+//		 * Returns the matches created by this computation.
+//		 * 
+//		 * @return the matches created by this computation.
+//		 */
+//		public Set<Match> getMatches() {
+//			return matches;
+//		}
+//
+//		/**
+//		 * Computes matches.
+//		 */
+//		public void compute() {
+//			computeLeftSide();
+//			computeRightSide();
+//			computeOriginSide();
+//			reorganizeMatches();
+//		}
+//
+//		/**
+//		 * Computes matches for left side.
+//		 */
+//		private void computeLeftSide() {
+//			while (leftEObjects.hasNext()) {
+//				final EObject left = leftEObjects.next();
+//				final String identifier = idComputation.apply(left);
+//				if (identifier != null) {
+//					final Match match = CompareFactory.eINSTANCE.createMatch();
+//					match.setLeft(left);
+//					// Can we find a parent? Assume we're iterating in containment order
+//					final EObject parentEObject = getParentEObject(left);
+//					final Match parent = leftEObjectsToMatch.get(parentEObject);
+//					if (parent != null) {
+//						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//					} else {
+//						matches.add(match);
+//					}
+//					final boolean isAlreadyContained = idProxyMap.put(left.eIsProxy(), identifier, match);
+//					if (isAlreadyContained) {
+//						reportDuplicateID(Side.LEFT, left);
+//					}
+//					leftEObjectsToMatch.put(left, match);
+//				} else {
+//					leftEObjectsNoID.add(left);
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * Computes matches for right side.
+//		 */
+//		private void computeRightSide() {
+//			while (rightEObjects.hasNext()) {
+//				final EObject right = rightEObjects.next();
+//				// Do we have an existing match?
+//				final String identifier = idComputation.apply(right);
+//				if (identifier != null) {
+//					Match match = idProxyMap.get(right.eIsProxy(), identifier);
+//					if (match != null) {
+//						if (match.getRight() != null) {
+//							reportDuplicateID(Side.RIGHT, right);
+//						}
+//						match.setRight(right);
+//						rightEObjectsToMatch.put(right, match);
+//					} else {
+//						// Otherwise, create and place it.
+//						match = CompareFactory.eINSTANCE.createMatch();
+//						match.setRight(right);
+//						// Can we find a parent?
+//						final EObject parentEObject = getParentEObject(right);
+//						final Match parent = rightEObjectsToMatch.get(parentEObject);
+//						if (parent != null) {
+//							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//						} else {
+//							matches.add(match);
+//						}
+//						rightEObjectsToMatch.put(right, match);
+//						idProxyMap.put(right.eIsProxy(), identifier, match);
+//					}
+//				} else {
+//					rightEObjectsNoID.add(right);
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * Computes matches for origin side.
+//		 */
+//		private void computeOriginSide() {
+//			while (originEObjects.hasNext()) {
+//				final EObject origin = originEObjects.next();
+//				// Do we have an existing match?
+//				final String identifier = idComputation.apply(origin);
+//				if (identifier != null) {
+//					Match match = idProxyMap.get(origin.eIsProxy(), identifier);
+//					if (match != null) {
+//						if (match.getOrigin() != null) {
+//							reportDuplicateID(Side.ORIGIN, origin);
+//						}
+//						match.setOrigin(origin);
+//						originEObjectsToMatch.put(origin, match);
+//					} else {
+//						// Otherwise, create and place it.
+//						match = CompareFactory.eINSTANCE.createMatch();
+//						match.setOrigin(origin);
+//						// Can we find a parent?
+//						final EObject parentEObject = getParentEObject(origin);
+//						final Match parent = originEObjectsToMatch.get(parentEObject);
+//						if (parent != null) {
+//							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//						} else {
+//							matches.add(match);
+//						}
+//						idProxyMap.put(origin.eIsProxy(), identifier, match);
+//						originEObjectsToMatch.put(origin, match);
+//					}
+//				} else {
+//					originEObjectsNoID.add(origin);
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * Reorganize matches.
+//		 */
+//		private void reorganizeMatches() {
+//			// For all root matches, check if they can be put under another match.
+//			for (Match match : ImmutableSet.copyOf(matches)) {
+//				EObject parentEObject = getParentEObject(match.getLeft());
+//				Match parent = leftEObjectsToMatch.get(parentEObject);
+//				if (parent != null) {
+//					matches.remove(match);
+//					((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//				} else {
+//					parentEObject = getParentEObject(match.getRight());
+//					parent = rightEObjectsToMatch.get(parentEObject);
+//					if (parent != null) {
+//						matches.remove(match);
+//						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//					} else {
+//						parentEObject = getParentEObject(match.getOrigin());
+//						parent = originEObjectsToMatch.get(parentEObject);
+//						if (parent != null) {
+//							matches.remove(match);
+//							((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//}
 
 
 

@@ -13,7 +13,7 @@ public class HashEObjectMatcher implements IEObjectMatcher	{
 	public void createMatches(Comparison comparison, Iterator<? extends EObject> leftEObjects,
 			Iterator<? extends EObject> rightEObjects, Iterator<? extends EObject> originEObjects) {
 		
-		
+		//
 		
 	}
 	

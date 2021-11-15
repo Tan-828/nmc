@@ -1,13 +1,20 @@
 package edu.ustb.sei.mde.compare.match;
 
+import static edu.ustb.sei.mde.compare.start.EMFCompare.DIAGNOSTIC_SOURCE;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -16,7 +23,10 @@ import edu.ustb.sei.mde.compare.CompareFactory;
 import edu.ustb.sei.mde.compare.IDFunction;
 import edu.ustb.sei.mde.compare.Match;
 import edu.ustb.sei.mde.compare.EObjectIndex.Side;
-import edu.ustb.sei.mde.compare.match.IdentifierEObjectMatcher.SwitchMap;
+import edu.ustb.sei.mde.compare.match.IdentifierEObjectMatcher;
+import edu.ustb.sei.mde.compare.match.IdentifierEObjectMatcher.DefaultIDFunction;
+import edu.ustb.sei.mde.compare.util.EMFCompareMessages;
+
 
 
 /**
@@ -67,6 +77,20 @@ public class MatchComputationByID implements IDFunction{
 	private SwitchMap<String, Match> idProxyMap;
 	
 	/**
+	 * This will be used to determine what represents the "identifier" of an EObject. By default, we will use
+	 * the following logic, in order (i.e. if condition 1 is fulfilled, we will not try conditions 2 and 3) :
+	 * <ol>
+	 * <li>If the given eObject is a proxy, it is uniquely identified by its URI fragment.</li>
+	 * <li>If the eObject is located in an XMI resource and has an XMI ID, use this as its unique identifier.
+	 * </li>
+	 * <li>If the eObject's EClass has an eIdAttribute set, use this attribute's value.</li>
+	 * </ol>
+	 */
+	private Function<EObject, String> idComputation = new DefaultIDFunction();
+	
+	/** A diagnostic to be used for reporting on the matches. */
+	private BasicDiagnostic diagnostic;
+	/**
 	 * Constructor.
 	 * 
 	 * @param leftEObjects
@@ -84,7 +108,8 @@ public class MatchComputationByID implements IDFunction{
 	 */
 	MatchComputationByID(Iterator<? extends EObject> leftEObjects, Iterator<? extends EObject> rightEObjects,
 			Iterator<? extends EObject> originEObjects, final List<EObject> leftEObjectsNoID,
-			final List<EObject> rightEObjectsNoID, final List<EObject> originEObjectsNoID) {
+			final List<EObject> rightEObjectsNoID, final List<EObject> originEObjectsNoID
+			,Function<EObject, String> idComputation, BasicDiagnostic diagnostic) {
 		this.matches = Sets.newLinkedHashSet();
 		this.leftEObjectsToMatch = Maps.newHashMap();
 		this.rightEObjectsToMatch = Maps.newHashMap();
@@ -96,6 +121,8 @@ public class MatchComputationByID implements IDFunction{
 		this.leftEObjectsNoID = leftEObjectsNoID;
 		this.rightEObjectsNoID = rightEObjectsNoID;
 		this.originEObjectsNoID = originEObjectsNoID;
+		this.idComputation = idComputation;
+		this.diagnostic = diagnostic;
 	}
 	
 	/**
@@ -248,6 +275,74 @@ public class MatchComputationByID implements IDFunction{
 			}
 		}
 	}
+	
+	/**
+	 * This method is used to determine the parent objects during matching. The default implementation of this
+	 * method returns the eContainer of the given {@code eObject}. Can be overwritten by clients to still
+	 * allow proper matching when using a more complex architecture.
+	 * 
+	 * @param eObject
+	 *            The {@link EObject} for which the parent object is to determine.
+	 * @return The parent of the given {@code eObject}.
+	 * @since 3.2
+	 */
+	protected EObject getParentEObject(EObject eObject) {
+		final EObject parent;
+		if (eObject != null) {
+			parent = eObject.eContainer();
+		} else {
+			parent = null;
+		}
+		return parent;
+	}
+	
+	/**
+	 * Adds a warning diagnostic to the comparison for the duplicate ID.
+	 * 
+	 * @param side
+	 *            the side where the duplicate ID was found
+	 * @param eObject
+	 *            the element with the duplicate ID
+	 */
+	private void reportDuplicateID(Side side, EObject eObject) {
+		final String duplicateID = idComputation.apply(eObject);
+		final String sideName = side.name().toLowerCase();
+		final String uriString = getUriString(eObject);
+		final String message;
+		if (uriString != null) {
+			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateIdWithResource", //$NON-NLS-1$
+					duplicateID, sideName, uriString);
+		} else {
+			message = EMFCompareMessages.getString("IdentifierEObjectMatcher.duplicateId", //$NON-NLS-1$
+					duplicateID, sideName);
+		}
+		diagnostic.add(new BasicDiagnostic(Diagnostic.WARNING, DIAGNOSTIC_SOURCE, 0, message, null));
+	}
+	
+	/**
+	 * Returns a String representation of the URI of the given {@code eObject}'s resource.
+	 * <p>
+	 * If the {@code eObject}'s resource or its URI is <code>null</code>, this method returns
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param eObject
+	 *            The {@link EObject} for which's resource the string representation of its URI is determined.
+	 * @return A String representation of the given {@code eObject}'s resource URI.
+	 */
+	private String getUriString(EObject eObject) {
+		String uriString = null;
+		final Resource resource = eObject.eResource();
+		if (resource != null && resource.getURI() != null) {
+			final URI uri = resource.getURI();
+			if (uri.isPlatform()) {
+				uriString = uri.toPlatformString(true);
+			} else {
+				uriString = uri.toString();
+			}
+		}
+		return uriString;
+	}
 }
 
 
@@ -259,7 +354,7 @@ public class MatchComputationByID implements IDFunction{
  * @param <V>
  *            The class used as value in the internal maps.
  */
-private class SwitchMap<K, V> {
+class SwitchMap<K, V> {
 
 	/**
 	 * Map used when the switch boolean is true.
