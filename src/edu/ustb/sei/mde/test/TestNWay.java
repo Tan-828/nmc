@@ -55,7 +55,7 @@ public class TestNWay {
 		
 		// never use identifiers
 		IMatchEngine.Factory.Registry registry = MatchEngineFactoryRegistryImpl.createStandaloneInstance();
-		final MatchEngineFactoryImpl matchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.NEVER);
+		final MatchEngineFactoryImpl matchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.ONLY);
 		matchEngineFactory.setRanking(20);
 		registry.add(matchEngineFactory);
 		

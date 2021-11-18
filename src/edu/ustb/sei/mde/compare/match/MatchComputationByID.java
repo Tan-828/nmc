@@ -141,7 +141,7 @@ public class MatchComputationByID implements IDFunction{
 		computeLeftSide();
 		computeRightSide();
 		computeOriginSide();
-		reorganizeMatches();
+		//reorganizeMatches();
 	}
 
 	/**
@@ -154,14 +154,16 @@ public class MatchComputationByID implements IDFunction{
 			if (identifier != null) {
 				final Match match = CompareFactory.eINSTANCE.createMatch();
 				match.setLeft(left);
+				//‘› ±≤ª”√Submatches
 				// Can we find a parent? Assume we're iterating in containment order
-				final EObject parentEObject = getParentEObject(left);
-				final Match parent = leftEObjectsToMatch.get(parentEObject);
-				if (parent != null) {
-					((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-				} else {
-					matches.add(match);
-				}
+//				final EObject parentEObject = getParentEObject(left);
+//				final Match parent = leftEObjectsToMatch.get(parentEObject);
+//				if (parent != null) {
+//					((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//				} else {
+//					matches.add(match);
+//				}
+				matches.add(match);
 				final boolean isAlreadyContained = idProxyMap.put(left.eIsProxy(), identifier, match);
 				if (isAlreadyContained) {
 					reportDuplicateID(Side.LEFT, left);
@@ -194,13 +196,14 @@ public class MatchComputationByID implements IDFunction{
 					match = CompareFactory.eINSTANCE.createMatch();
 					match.setRight(right);
 					// Can we find a parent?
-					final EObject parentEObject = getParentEObject(right);
-					final Match parent = rightEObjectsToMatch.get(parentEObject);
-					if (parent != null) {
-						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-					} else {
-						matches.add(match);
-					}
+//					final EObject parentEObject = getParentEObject(right);
+//					final Match parent = rightEObjectsToMatch.get(parentEObject);
+//					if (parent != null) {
+//						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//					} else {
+//						matches.add(match);
+//					}
+					matches.add(match);
 					rightEObjectsToMatch.put(right, match);
 					idProxyMap.put(right.eIsProxy(), identifier, match);
 				}
@@ -231,13 +234,14 @@ public class MatchComputationByID implements IDFunction{
 					match = CompareFactory.eINSTANCE.createMatch();
 					match.setOrigin(origin);
 					// Can we find a parent?
-					final EObject parentEObject = getParentEObject(origin);
-					final Match parent = originEObjectsToMatch.get(parentEObject);
-					if (parent != null) {
-						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
-					} else {
-						matches.add(match);
-					}
+//					final EObject parentEObject = getParentEObject(origin);
+//					final Match parent = originEObjectsToMatch.get(parentEObject);
+//					if (parent != null) {
+//						((InternalEList<Match>)parent.getSubmatches()).addUnique(match);
+//					} else {
+//						matches.add(match);
+//					}
+					matches.add(match);
 					idProxyMap.put(origin.eIsProxy(), identifier, match);
 					originEObjectsToMatch.put(origin, match);
 				}

@@ -70,12 +70,12 @@ public class ReadResourceCompare {
 			System.out.println("right  :" + m.getRight());
 			System.out.println("origin :" + m.getOrigin());
 			System.out.println("________________________________________");
-//			m.getAllSubmatches().forEach(sub -> {
-//				System.out.println("left   :" + sub.getLeft());
-//				System.out.println("right  :" + sub.getRight());
-//				System.out.println("origin :" + sub.getOrigin());
-//				System.out.println("----------------------------------------");
-//			});
+			m.getAllSubmatches().forEach(sub -> {
+				System.out.println("left   :" + sub.getLeft());
+				System.out.println("right  :" + sub.getRight());
+				System.out.println("origin :" + sub.getOrigin());
+				System.out.println("----------------------------------------");
+			});
 		});
 		System.out.println("");
 				
