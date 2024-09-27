@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ASCII"?>
+<conflict:Conflicts xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:conflict="http://www.ustb.edu.cn/sei/mde/nmc/conflict" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" baseURI="file:/E:/nmc/edu.ustb.sei.mde.nmc/src/edu/ustb/sei/mde/nmc/ecore/person.ecore">
+  <conflicts information="&#x5355;&#x503c;&#x5c5e;&#x6027;&#x7684;&#x4fee;&#x6539;&#x77db;&#x76fe;">
+    <tuples branch="1">
+      <eObject href="person1.ecore#_9MhOkHtZEeKpeZ-e8atWJw"/>
+      <eStructuralFeature xsi:type="ecore:EAttribute" href="http://www.eclipse.org/emf/2002/Ecore#//ENamedElement/name"/>
+    </tuples>
+    <tuples branch="2">
+      <eObject href="person2.ecore#_9MhOkHtZEeKpeZ-e8atWJw"/>
+      <eStructuralFeature xsi:type="ecore:EAttribute" href="http://www.eclipse.org/emf/2002/Ecore#//ENamedElement/name"/>
+    </tuples>
+    <tuples branch="3">
+      <eObject href="person3.ecore#_9MhOkHtZEeKpeZ-e8atWJw"/>
+      <eStructuralFeature xsi:type="ecore:EAttribute" href="http://www.eclipse.org/emf/2002/Ecore#//ENamedElement/name"/>
+    </tuples>
+  </conflicts>
+  <branchURIs>file:/E:/nmc/edu.ustb.sei.mde.nmc/src/edu/ustb/sei/mde/nmc/ecore/person1.ecore</branchURIs>
+  <branchURIs>file:/E:/nmc/edu.ustb.sei.mde.nmc/src/edu/ustb/sei/mde/nmc/ecore/person2.ecore</branchURIs>
+  <branchURIs>file:/E:/nmc/edu.ustb.sei.mde.nmc/src/edu/ustb/sei/mde/nmc/ecore/person3.ecore</branchURIs>
+</conflict:Conflicts>

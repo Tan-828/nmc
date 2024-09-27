@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<conflict:ValConflict
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:conflict="http:///conflict"
+    xsi:schemaLocation="http:///conflict conflict.ecore"
+    firstBranch="1"
+    firstKind="Update"
+    secondBranch="2"
+    secondKind="Update"
+    information="单值属性的修改矛盾">
+  <left href="person1.ecore#_9MhOkHtZEeKpeZ-e8atWJw"/>
+  <right href="person2.ecore#_9MhOkHtZEeKpeZ-e8atWJw"/>
+</conflict:ValConflict>

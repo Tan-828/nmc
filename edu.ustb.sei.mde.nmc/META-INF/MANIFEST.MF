@@ -5,11 +5,15 @@ Bundle-SymbolicName: edu.ustb.sei.mde.nmc
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: edu.ustb.lesley.compare
 Bundle-RequiredExecutionEnvironment: JavaSE-13
-Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.23.0",
- org.eclipse.core.runtime;bundle-version="3.20.0"
+Require-Bundle: edu.ustb.sei.mde.conflict;bundle-version="1.0.0",
+ org.eclipse.uml2.uml;bundle-version="5.5.0"
 Import-Package: com.google.common.base;version="21.0.0",
  com.google.common.cache;version="21.0.0",
  com.google.common.collect;version="21.0.0",
- org.apache.log4j;version="1.2.15",
- org.eclipse.emf.ecore.xmi,
- org.eclipse.emf.ecore.xmi.impl
+ org.apache.commons.collections4.map;version="4.4.0",
+ org.apache.log4j;version="1.2.15"
+Export-Package: edu.ustb.sei.mde.nmc.compare,
+ edu.ustb.sei.mde.nmc.compare.internal,
+ edu.ustb.sei.mde.nmc.compare.match,
+ edu.ustb.sei.mde.nmc.compare.start,
+ edu.ustb.sei.mde.nmc.nway
